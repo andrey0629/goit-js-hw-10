@@ -1,51 +1,20 @@
-import axios from 'axios';
+// import SlimSelect from 'slim-select';
+// import 'slim-select/dist/slimselect.css';
 
-axios.defaults.headers.common['x-api-key'] =
-  'live_5gcBxYGBeGtVnTe4tRQVLU3tQgzVUm9OvGjso2ptqnap9avv66fdGiowLO59glmR';
-
-import SlimSelect from 'slim-select';
-import 'slim-select/dist/slimselect.css';
-
-import Notiflix from 'notiflix';
+// import Notiflix from 'notiflix';
 
 // import { Notify } from 'notiflix/build/notiflix-notify-aio';
 // import { Loading } from 'notiflix/build/notiflix-loading-aio';
 
-import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
+// import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
 
-import { markup } from './cat-api.js';
-import { markup2 } from './cat-api.js';
+// const select = document.querySelector('.breed-select');
 
-const select = document.querySelector('.breed-select');
+// const loader = document.querySelector('.loader');
 
-const loader = document.querySelector('.loader');
-// console.log(loader);
+// const catInfo = document.querySelector('.cat-info');
 
-const catInfo = document.querySelector('.cat-info');
-// console.log(catInfo);
-
-// const guard = document.querySelector('.js-guard');
-
-fetchBreeds().then(data => {
-  console.log(data);
-  // select.insertAdjacentHTML(
-  // 'beforeend'
-  // `data.map(({ name,id }) => ${data}).join('')`
-  // );
-  select.innerHTML += markup(data);
-  // const cat = document.querySelector('option');
-  // console.log(cat);
-  // cat.addEventListener('click', fetchCatByBreed());
-  // observer.observe(guard);
-});
-
-fetchCatByBreed().then(data => {
-  console.log(data);
-  catInfo.innerHTML += markup2(data);
-});
-
-// export function searchCats(arr) {
-//   // for (i = 0; i <= 67; i += 1) {
+// function markup(arr) {
 //   return arr
 //     .map(
 //       ({ id, name }) =>
@@ -56,12 +25,109 @@ fetchCatByBreed().then(data => {
 //     .join('');
 // }
 
-// searchCats().then(data => {
+// fetchBreeds().then(data => {
 //   console.log(data);
-//   // select.insertAdjacentHTML(
-//   // 'beforeend'
-//   // `data.map(({ name,id }) => ${data}).join('')`
-//   // );
-//   select.innerHTML += markup2(data);
-//   // observer.observe(guard);
+
+//   select.innerHTML += markup(data);
+//   new SlimSelect({ select: select });
 // });
+
+// select.addEventListener('change', onCLick);
+
+// function onCLick(e) {
+//   const breedId = e.currentTarget.value;
+//   catInfo.innerHTML = '';
+//   Loading.dots();
+//   fetchCatByBreed(breedId).then(markup2).catch(Err);
+// }
+
+// function Err() {
+//   return Notify.failure('Oops! Something went wrong! Try reloading the page!');
+// }
+
+// function markup2(res) {
+//   Loading.remove();
+//   const { name, description, temperament } = res.breeds[0];
+//   const markup = `
+//     <h2 class="header">${name}</h2>
+//     <div class="card">
+//       <img src="${res.url}" alt="${name}" class="image" width=400>
+//       <div class="description">
+//         <p class="text">${description}</p>
+//         <p class="text"><b>Temperament:</b> ${temperament}</p>
+//       </div>
+//     </div>
+//   `;
+//   catInfo.innerHTML = markup;
+// }
+
+// 1
+// 2
+// 3
+import SlimSelect from 'slim-select';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { Loading } from 'notiflix/build/notiflix-loading-aio';
+import 'slim-select/dist/slimselect.css';
+import { fetchBreeds, fetchCatByBreed } from './cat-api';
+
+const select = document.querySelector('.breed-select');
+const catContainer = document.querySelector('.cat-info');
+
+fetchBreeds().then(renderCatOption).catch(onRenderError);
+
+select.addEventListener('change', onOptionCLick);
+
+function onOptionCLick(e) {
+  const selectedOption = e.currentTarget.value;
+  catContainer.innerHTML = '';
+  Loading.hourglass();
+  fetchCatByBreed(selectedOption).then(renderCatCard).catch(onRenderError);
+}
+
+function onRenderError() {
+  return Notify.failure('Oops! Something went wrong, please try again.');
+}
+
+function renderCatOption(res) {
+  const markup = res.map(
+    ({ id, name }) => `<option value="${id}">${name}</option>`
+  );
+  select.insertAdjacentHTML('beforeend', markup);
+  new SlimSelect({
+    select: select,
+    settings: {
+      placeholderText: 'Select a cat breed',
+      hideSelected: true,
+    },
+    events: {
+      afterChange: fetchBreeds,
+    },
+  });
+
+  //   settings: {
+  //     placeholderText: 'Select a cat breed',
+  //     hideSelected: true,
+  //   },
+  //   events: {
+  //     afterChange: fetchBreed,
+  //   },
+  // });
+
+  // new SlimSelect({ select: select });
+}
+
+function renderCatCard(res) {
+  Loading.remove();
+  const { name, description, temperament } = res.breeds[0];
+  const markup = `
+    <h2 class="header">${name}</h2>
+    <div class="card">
+      <img src="${res.url}" alt="${name}" class="image" width=400>
+      <div class="description">
+        <p class="text">${description}</p>
+        <p class="text"><b>Temperament:</b> ${temperament}</p>
+      </div>
+    </div>
+  `;
+  catContainer.innerHTML = markup;
+}
