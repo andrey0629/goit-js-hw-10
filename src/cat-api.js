@@ -1,9 +1,15 @@
+import axios from 'axios';
+
+axios.defaults.headers.common['x-api-key'] =
+  'live_5gcBxYGBeGtVnTe4tRQVLU3tQgzVUm9OvGjso2ptqnap9avv66fdGiowLO59glmR';
+
 export function fetchBreeds() {
   const options = {
-    //   // headers: {
-    //   // Authorization: 'Bearer E44IIOmyRgiAd04FpMeR',
-    //   // },
-  };
+//     headers: {
+//       Authorization: "Bearer E44IIOmyRgiAd04FpMeR",
+//     },
+//   };
+
   return fetch('https://api.thecatapi.com/v1/breeds', options).then(
     response => {
       if (!response.ok) {
@@ -13,6 +19,46 @@ export function fetchBreeds() {
     }
   );
   console.log(response);
+}
+
+export function markup(arr) {
+  return arr
+    .map(
+      ({ id, name }) =>
+        `<option class="catList" data-id="${id}">
+            ${name}
+        </option>`
+    )
+    .join('');
+}
+
+export function fetchCatByBreed() {
+  // const id = cat.data - id;
+  const options = {};
+  return fetch(
+    // 'https://api.thecatapi.com/v1/images/search?breed_id',
+    'https://api.thecatapi.com/v1/images/search?breed_ids=${id}',
+    options
+  ).then(response => {
+    if (!response.ok) {
+      throw new Error(response);
+    }
+    return response.json();
+  });
+}
+
+export function markup2(arr) {
+  return arr
+    .map(
+      ({ cfa_url, name, description, temperament, id, url }) => `
+<img src="${url}" alt="" width="300px">
+<h3>${id}
+</h3>
+  <p>${description}
+  </p>
+    <h2>${temperament}</h2>`
+    )
+    .join('');
 }
 
 // function serviceCharacter(page = 1) {
@@ -40,17 +86,6 @@ export function fetchBreeds() {
 // let page = 30;
 
 // const guard = document.querySelector('.breed-select');
-
-export function markup(arr) {
-  return arr
-    .map(
-      ({ id, name }) => `
-        <option>
-            ${name}
-        </option>`
-    )
-    .join('');
-}
 
 // function serviceCharacter(page = 1) {
 //   const options = {
@@ -91,3 +126,5 @@ export function markup(arr) {
 //   });
 // }
 // const observer = new IntersectionObserver(callback, options);
+
+export { fetchBreeds, fetchCatByBreed };
