@@ -11,18 +11,16 @@ const instance = axios.create({
 
 Loading.hourglass('Loading...');
 
-function fetchBreeds() {
+export function fetchBreeds() {
   return instance
     .get('breeds')
     .then(r => r.data, Loading.remove(), (select.hidden = true))
     .catch(err => new Error(err.response.statusText));
 }
 
-function fetchCatByBreed(breedId) {
+export function fetchCatByBreed(breedId) {
   return instance
     .get(`images/search?breed_ids=${breedId}`)
     .then(r => r.data[0])
     .catch(err => new Error(err.response.statusText));
 }
-
-export { fetchBreeds, fetchCatByBreed };
